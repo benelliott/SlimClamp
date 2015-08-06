@@ -26,6 +26,12 @@
         return window.getComputedStyle(elem, null).getPropertyValue(prop);
     }
 
+    if (!String.prototype.trim) {
+        String.prototype.trim = function () {
+            return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+        };
+    }
+
     var invalidString = function(string){
         return typeof string !== 'string' || string === null || string.trim() === '';
     };
@@ -58,7 +64,7 @@
             element.innerHTML = text;
         }
 
-        text = removeLastChars(text, 3);
+        text = removeLastChars(text, 3); // TODO -- bit of a hack that assumes the truncation char is < 3 chars wide
         element.innerHTML = text + truncationChar;
     };
 

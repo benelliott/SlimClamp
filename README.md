@@ -7,7 +7,7 @@ This library will improve on the original in the following ways:
 - Much smaller file size
 - Cleaner code structure
 - Fewer bugs
-- IE9 compatibility (and hopefully IE8 soon too)
+- Full IE8+ compatibility
 - Bower support (coming soon)
 
 However this comes at the cost of cutting away some features, such as the 'auto' and '__px' clamping settings. Neither of these were suitable for my use case and I am sceptical that the former does not work in the original library. I may include the latter at a later date. Thus it currently only supports usage in the following way:
@@ -20,6 +20,5 @@ Note that one limitation which exists on both versions of the library is that te
 
 TODOs:
 - Fully document code
-- Add IE8 compatibility
 - Add Bower support
 - Add '__px' config setting (maybe).
