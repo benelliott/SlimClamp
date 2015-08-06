@@ -111,9 +111,9 @@
           case 0: // passes
             return middleText;
           case -1: // too small
-            return search(middleText, textRangeEnd, targetRangeStart, targetRangeEnd);
+            return binaryTruncateSearch(middleText, textRangeEnd, targetRangeStart, targetRangeEnd);
           case 1: // too large
-            return search(textRangeStart, middleText, targetRangeStart, targetRangeEnd);
+            return binaryTruncateSearch(textRangeStart, middleText, targetRangeStart, targetRangeEnd);
         }
     };
 
