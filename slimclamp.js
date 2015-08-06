@@ -75,6 +75,32 @@
             (invalidString(appendString) ? '' : appendString);
     };
 
+
+    var middle = function(stringStart, stringEnd){
+        return stringEnd.slice(0, (stringStart.length + stringEnd.length) / 2);
+    };
+
+    var rangeTest = function(element, text, admissibleHeightStart, admissibleHeightEnd, truncationString){
+        element.innerHTML = text + truncationString;
+        return element.clientHeight <= admissibleHeightEnd && element.clientHeight >= admissibleHeightStart;
+    };
+
+    var search = function(element, textRangeStart, textRangeEnd, targetRangeStart, targetRangeEnd, truncationString){
+        var middleText = middle(textRangeStart, textRangeEnd);
+        switch (rangeTest(element, middleText, targetRangeStart, targetRangeEnd, truncationString)) {
+          case 0: // passes
+            return middleText;
+          case -1: // too small
+            return search(middleText, textRangeEnd, targetRangeStart, targetRangeEnd);
+          case 1: // too large
+            return search(textRangeStart, middleText, targetRangeStart, targetRangeEnd);
+        }
+    };
+
+    var find = function(element, maxHeight, searchThreshold, truncationString){
+        return search(element, '', element.innerHTML, maxHeight - searchThreshold, maxHeight, truncationString);
+    };
+
     /**
      * Truncates the text contents of the provided element so that the element's
      * height is less than or equal to maxHeightPx.
@@ -83,23 +109,35 @@
      * @param  truncationString - the string with which to truncate the text
      */
     var truncate = function(element, maxHeightPx, truncationString){
-        if (!maxHeightPx || element.clientHeight <= maxHeightPx)
+        if (!maxHeightPx || element.clientHeight <= maxHeightPx - SEARCH_THRESHOLD)
             return;
 
-        var text = element.innerHTML;
-        while (element.clientHeight > maxHeightPx && text.length > 0) {
+        var originalText = element.innerHTML;
+        var text = originalText;
+        while ((element.clientHeight > maxHeight || element.clientHeight < maxHeight - SEARCH_THRESHOLD) && text.length > 0) {
             // remove one character from the text until it fits in the limits
             // TODO: use binary search to make this more efficient
+
+            if (element.clientHeight > maxHeight) {
+                // too large
+                text = firstHalf(text);
+            }
+            else {
+                // too small
+            }
+
             text = removeLastChars(text, 1 + truncationString.length, truncationString);
             element.innerHTML = text;
         }
     };
 
     var DEFAULT_TRUNCATION_STRING = '…';
-    var DEFAULT_LINE_HEIGHT = 16;
+    var DEFAULT_LINE_HEIGHT_PX = 16;
+    var DEFAULT_SEARCH_THRESHOLD_PX = 5;
 
     window.$clamp = function(element, numLines, truncationString){
-        if (typeof(element.style.webkitLineClamp) !== 'undefined') {
+      if (false){
+        // if (typeof(element.style.webkitLineClamp) !== 'undefined') {
             // browser supports clamping natively
             element.style.overflow = 'hidden';
             element.style.textOverflow = 'ellipsis';
@@ -112,10 +150,11 @@
             var lineHeight = getLineHeight(element);
             if (isNaN(lineHeight))
                 lineHeight = DEFAULT_LINE_HEIGHT;
-            truncate(
-              element,
-              lineHeight * numLines,
-              typeof truncationChar !== 'undefined' ? truncationString : DEFAULT_TRUNCATION_STRING);
+            // truncate(
+            //   element,
+            //   lineHeight * numLines,
+            //   typeof truncationChar !== 'undefined' ? truncationString : DEFAULT_TRUNCATION_STRING);
+            var text = find(element, lineHeight * numLines, DEFAULT_SEARCH_THRESHOLD_PX, typeof truncationChar !== 'undefined' ? truncationString : DEFAULT_TRUNCATION_STRING);
         }
     };
 })();
