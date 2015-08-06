@@ -21,4 +21,5 @@ Note that one limitation which exists on both versions of the library is that te
 TODOs:
 - Fully document code
 - Add Bower support
+- Use binary search for iteration
 - Add '__px' config setting (maybe).
