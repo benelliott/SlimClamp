@@ -62,31 +62,51 @@
     };
 
     /**
-     * Returns a new string with the final numChars characters removed from
-     * the provided string.
-     * @param  string - the string to truncate
-     * @param  numChars - the number of characters to remove
-     * @param  appendString - a string to append to the new string (optional)
-     * @return string with numChars chars removed from the end
+     * Returns a substring of stringEnd, whose length is half-way between that
+     * of stringStart and stringEnd
+     * @param  stringStart - the string at the bottom of the range
+     * @param  stringEnd - the string at the top of the range
+     * @return the string in the middle of the range
      */
-    var removeLastChars = function(string, numChars, appendString){
-        var end = string.length - numChars;
-        return (end <= 0 ? '' : string.slice(0, end)) +
-            (invalidString(appendString) ? '' : appendString);
-    };
-
-
-    var middle = function(stringStart, stringEnd){
+    var getMidRangeString = function(stringStart, stringEnd){
         return stringEnd.slice(0, (stringStart.length + stringEnd.length) / 2);
     };
 
-    var rangeTest = function(element, text, admissibleHeightStart, admissibleHeightEnd, truncationString){
+    /**
+     * Tests a string of text to determine whether it puts the element in the
+     * admissible range of heights when suffixed with the truncationString
+     * and used as the element's content.
+     * @param  element - the element whose content is being truncated
+     * @param  text - the string to test
+     * @param  admissibleHeightStartPx - the bottom of the range of admissible heights
+     * @param  admissibleHeightEndPx - the top of the range of admissible heights
+     * @param  truncationString - the string to append to the element content
+     * @return -1 if the height was too low, 0 if it was correct, 1 if it was too high
+     */
+    var rangeTest = function(element, text, admissibleHeightStartPx, admissibleHeightEndPx, truncationString){
         element.innerHTML = text + truncationString;
-        return element.clientHeight <= admissibleHeightEnd && element.clientHeight >= admissibleHeightStart;
+        if (element.clientHeight <= admissibleHeightEndPx) {
+            return element.clientHeight >= admissibleHeightStartPx ?
+              0 : // exactly in rangeTest
+              -1; // too small
+        }
+        else
+            return 1; // too big
     };
 
-    var search = function(element, textRangeStart, textRangeEnd, targetRangeStart, targetRangeEnd, truncationString){
-        var middleText = middle(textRangeStart, textRangeEnd);
+    /**
+     * Uses a binary search to find the truncated text contents that will fit
+     * into the element.
+     * @param  element - the element whose contents is tested
+     * @param  textRangeStart - the string at the bottom of the range to test
+     * @param  textRangeEnd - the string at the top of the range to test
+     * @param  targetRangeStart - the height at the bottom of the admissible range
+     * @param  targetRangeEnd - the height at the top of the admissible range
+     * @param  truncationString - the string to append to the element contents
+     * @return the truncated text that was converged upon
+     */
+    var binaryTruncateSearch = function(element, textRangeStart, textRangeEnd, targetRangeStart, targetRangeEnd, truncationString){
+        var middleText = getMidRangeString(textRangeStart, textRangeEnd);
         switch (rangeTest(element, middleText, targetRangeStart, targetRangeEnd, truncationString)) {
           case 0: // passes
             return middleText;
@@ -97,38 +117,18 @@
         }
     };
 
-    var find = function(element, maxHeight, searchThreshold, truncationString){
-        return search(element, '', element.innerHTML, maxHeight - searchThreshold, maxHeight, truncationString);
-    };
-
-    /**
-     * Truncates the text contents of the provided element so that the element's
-     * height is less than or equal to maxHeightPx.
-     * @param  element - the element whose contents to truncate
-     * @param  maxHeightPx - the maximum height (in pixels) of the element
-     * @param  truncationString - the string with which to truncate the text
-     */
-    var truncate = function(element, maxHeightPx, truncationString){
-        if (!maxHeightPx || element.clientHeight <= maxHeightPx - SEARCH_THRESHOLD)
-            return;
-
-        var originalText = element.innerHTML;
-        var text = originalText;
-        while ((element.clientHeight > maxHeight || element.clientHeight < maxHeight - SEARCH_THRESHOLD) && text.length > 0) {
-            // remove one character from the text until it fits in the limits
-            // TODO: use binary search to make this more efficient
-
-            if (element.clientHeight > maxHeight) {
-                // too large
-                text = firstHalf(text);
-            }
-            else {
-                // too small
-            }
-
-            text = removeLastChars(text, 1 + truncationString.length, truncationString);
-            element.innerHTML = text;
-        }
+  /**
+   * Converges upon a text content that causes the provided element's height to
+   * fit in the admissible range as determined by
+   * (maxHeight - searchThreshold) <= h <= maxHeight
+   * @param  element - the element whose contents to test
+   * @param  maxHeight - the maximum admissible height of the element in px
+   * @param  searchThreshold - the search threshold in px
+   * @param  truncationString - the string to append to the truncated contents
+   * @return the text contents that was converged upon
+   */
+    var truncateContents = function(element, maxHeight, searchThreshold, truncationString){
+        return binaryTruncateSearch(element, '', element.innerHTML, maxHeight - searchThreshold, maxHeight, truncationString);
     };
 
     var DEFAULT_TRUNCATION_STRING = '…';
@@ -136,8 +136,7 @@
     var DEFAULT_SEARCH_THRESHOLD_PX = 5;
 
     window.$clamp = function(element, numLines, truncationString){
-      if (false){
-        // if (typeof(element.style.webkitLineClamp) !== 'undefined') {
+        if (typeof(element.style.webkitLineClamp) !== 'undefined') {
             // browser supports clamping natively
             element.style.overflow = 'hidden';
             element.style.textOverflow = 'ellipsis';
@@ -150,11 +149,11 @@
             var lineHeight = getLineHeight(element);
             if (isNaN(lineHeight))
                 lineHeight = DEFAULT_LINE_HEIGHT;
-            // truncate(
-            //   element,
-            //   lineHeight * numLines,
-            //   typeof truncationChar !== 'undefined' ? truncationString : DEFAULT_TRUNCATION_STRING);
-            var text = find(element, lineHeight * numLines, DEFAULT_SEARCH_THRESHOLD_PX, typeof truncationChar !== 'undefined' ? truncationString : DEFAULT_TRUNCATION_STRING);
+            truncateContents(
+              element,
+              lineHeight * numLines,
+              DEFAULT_SEARCH_THRESHOLD_PX,
+              typeof truncationChar !== 'undefined' ? truncationString : DEFAULT_TRUNCATION_STRING);
         }
     };
 })();
