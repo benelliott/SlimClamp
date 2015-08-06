@@ -1,0 +1,22 @@
+<!-- DOCTYPE html -->
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style>
+      .truncate-me {
+        font-size: 18px;
+        width: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="truncate-me">Hello, I am a piece of text! Please truncate me to 3 lines if you can!</div>
+    <script type="text/javascript" src="../slimclamp.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var el = document.getElementsByClassName('truncate-me')[0];
+        $clamp(el, 3);
+    });
+    </script>
+  </body>
+</html>

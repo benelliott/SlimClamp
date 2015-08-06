@@ -55,8 +55,8 @@
         var lh = computeStyle(element, 'line-height');
         if (lh === 'normal' || invalidString(lh))
             // Normal line heights vary from browser to browser. The spec recommends
-            // a value between 1.0 and 1.2 of the font size. Using 1.1 to split the diff.
-            return parseInt(computeStyle(element, 'font-size')) * 1.1;
+            // a value between 1.0 and 1.2 of the font size.
+            return parseInt(computeStyle(element, 'font-size')) * 1.2;
         else
             return parseInt(lh);
     };
@@ -66,11 +66,13 @@
      * the provided string.
      * @param  string - the string to truncate
      * @param  numChars - the number of characters to remove
+     * @param  appendString - a string to append to the new string (optional)
      * @return string with numChars chars removed from the end
      */
-    var removeLastChars = function(string, numChars){
+    var removeLastChars = function(string, numChars, appendString){
         var end = string.length - numChars;
-        return end <= 0 ? '' : string.slice(0, end);
+        return (end <= 0 ? '' : string.slice(0, end)) +
+            (invalidString(appendString) ? '' : appendString);
     };
 
     /**
@@ -78,29 +80,25 @@
      * height is less than or equal to maxHeightPx.
      * @param  element - the element whose contents to truncate
      * @param  maxHeightPx - the maximum height (in pixels) of the element
-     * @param  truncationChar - the character with which to truncate the text
+     * @param  truncationString - the string with which to truncate the text
      */
-    var truncate = function(element, maxHeightPx, truncationChar){
+    var truncate = function(element, maxHeightPx, truncationString){
         if (!maxHeightPx || element.clientHeight <= maxHeightPx)
             return;
 
         var text = element.innerHTML;
-
-        while (element.clientHeight > maxHeightPx) {
+        while (element.clientHeight > maxHeightPx && text.length > 0) {
             // remove one character from the text until it fits in the limits
             // TODO: use binary search to make this more efficient
-            text = removeLastChars(text, 1);
+            text = removeLastChars(text, 1 + truncationString.length, truncationString);
             element.innerHTML = text;
         }
-
-        text = removeLastChars(text, 3); // TODO -- bit of a hack that assumes the truncation char is < 3 chars wide
-        element.innerHTML = text + truncationChar;
     };
 
-    var DEFAULT_TRUNCATION_CHAR = '…';
+    var DEFAULT_TRUNCATION_STRING = '…';
     var DEFAULT_LINE_HEIGHT = 16;
 
-    window.$clamp = function(element, numLines, truncationChar){
+    window.$clamp = function(element, numLines, truncationString){
         if (typeof(element.style.webkitLineClamp) !== 'undefined') {
             // browser supports clamping natively
             element.style.overflow = 'hidden';
@@ -116,8 +114,8 @@
                 lineHeight = DEFAULT_LINE_HEIGHT;
             truncate(
               element,
-              (lineHeight) * numLines,
-              typoeof truncationChar !== 'undefined' ? truncationChar : DEFAULT_TRUNCATION_CHAR);
+              lineHeight * numLines,
+              typeof truncationChar !== 'undefined' ? truncationString : DEFAULT_TRUNCATION_STRING);
         }
     };
 })();
