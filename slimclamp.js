@@ -100,7 +100,7 @@
     var DEFAULT_TRUNCATION_CHAR = '…';
     var DEFAULT_LINE_HEIGHT = 16;
 
-    window.$clamp = function(element, numLines){
+    window.$clamp = function(element, numLines, truncationChar){
         if (typeof(element.style.webkitLineClamp) !== 'undefined') {
             // browser supports clamping natively
             element.style.overflow = 'hidden';
@@ -114,7 +114,10 @@
             var lineHeight = getLineHeight(element);
             if (isNaN(lineHeight))
                 lineHeight = DEFAULT_LINE_HEIGHT;
-            truncate(element, lineHeight * numLines, DEFAULT_TRUNCATION_CHAR);
+            truncate(
+              element,
+              (lineHeight) * numLines,
+              typoeof truncationChar !== 'undefined' ? truncationChar : DEFAULT_TRUNCATION_CHAR);
         }
     };
 })();
