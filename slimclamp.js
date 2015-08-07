@@ -54,8 +54,8 @@
     var getLineHeight = function(element) {
         var lh = computeStyle(element, 'line-height');
         if (lh === 'normal' || invalidString(lh))
-            // Normal line heights vary from browser to browser. The spec recommends
-            // a value between 1.0 and 1.2 of the font size.
+        // Normal line heights vary from browser to browser. The spec recommends
+        // a value between 1.0 and 1.2 of the font size.
             return parseInt(computeStyle(element, 'font-size')) * 1.2;
         else
             return parseInt(lh);
@@ -69,6 +69,8 @@
      * @return the string in the middle of the range
      */
     var getMidRangeString = function(stringStart, stringEnd){
+        if (stringEnd.length - stringStart.length < 2)
+            return stringStart;
         return stringEnd.slice(0, (stringStart.length + stringEnd.length) / 2);
     };
 
@@ -87,8 +89,8 @@
         element.innerHTML = text + truncationString;
         if (element.clientHeight <= admissibleHeightEndPx) {
             return element.clientHeight >= admissibleHeightStartPx ?
-              0 : // exactly in rangeTest
-              -1; // too small
+                0 : // exactly in rangeTest
+                -1; // too small
         }
         else
             return 1; // too big
@@ -107,26 +109,31 @@
      */
     var binaryTruncateSearch = function(element, textRangeStart, textRangeEnd, targetRangeStart, targetRangeEnd, truncationString){
         var middleText = getMidRangeString(textRangeStart, textRangeEnd);
+        if (middleText === textRangeStart) {
+            var truncated = middleText + truncationString;
+            element.innerHTML = truncated;
+            return truncated;
+        }
         switch (rangeTest(element, middleText, targetRangeStart, targetRangeEnd, truncationString)) {
-          case 0: // passes
-            return middleText;
-          case -1: // too small
-            return binaryTruncateSearch(middleText, textRangeEnd, targetRangeStart, targetRangeEnd);
-          case 1: // too large
-            return binaryTruncateSearch(textRangeStart, middleText, targetRangeStart, targetRangeEnd);
+            case 0: // passes
+                return middleText;
+            case -1: // too small
+                return binaryTruncateSearch(element, middleText, textRangeEnd, targetRangeStart, targetRangeEnd, truncationString);
+            case 1: // too large
+                return binaryTruncateSearch(element, textRangeStart, middleText, targetRangeStart, targetRangeEnd, truncationString);
         }
     };
 
-  /**
-   * Converges upon a text content that causes the provided element's height to
-   * fit in the admissible range as determined by
-   * (maxHeight - searchThreshold) <= h <= maxHeight
-   * @param  element - the element whose contents to test
-   * @param  maxHeight - the maximum admissible height of the element in px
-   * @param  searchThreshold - the search threshold in px
-   * @param  truncationString - the string to append to the truncated contents
-   * @return the text contents that was converged upon
-   */
+    /**
+     * Converges upon a text content that causes the provided element's height to
+     * fit in the admissible range as determined by
+     * (maxHeight - searchThreshold) <= h <= maxHeight
+     * @param  element - the element whose contents to test
+     * @param  maxHeight - the maximum admissible height of the element in px
+     * @param  searchThreshold - the search threshold in px
+     * @param  truncationString - the string to append to the truncated contents
+     * @return the text contents that was converged upon
+     */
     var truncateContents = function(element, maxHeight, searchThreshold, truncationString){
         return binaryTruncateSearch(element, '', element.innerHTML, maxHeight - searchThreshold, maxHeight, truncationString);
     };
@@ -148,12 +155,15 @@
             // fall back to iterative clamping method
             var lineHeight = getLineHeight(element);
             if (isNaN(lineHeight))
-                lineHeight = DEFAULT_LINE_HEIGHT;
+                lineHeight = DEFAULT_LINE_HEIGHT_PX;
+            var maxHeight = lineHeight * numLines;
+            if (element.clientHeight <= maxHeight)
+                return; // already fits
             truncateContents(
-              element,
-              lineHeight * numLines,
-              DEFAULT_SEARCH_THRESHOLD_PX,
-              typeof truncationChar !== 'undefined' ? truncationString : DEFAULT_TRUNCATION_STRING);
+                element,
+                maxHeight,
+                DEFAULT_SEARCH_THRESHOLD_PX,
+                typeof truncationString !== 'undefined' ? truncationString : DEFAULT_TRUNCATION_STRING);
         }
     };
 })();
