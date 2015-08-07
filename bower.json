@@ -1,0 +1,28 @@
+{
+  "name": "SlimClamp",
+  "version": "0.0.1",
+  "homepage": "https://github.com/benelliott/SlimClamp",
+  "authors": [
+    "benelliott <bengelliott@gmail.com>"
+  ],
+  "description": "A lightweight JavaScript text-clamping library",
+  "main": "slimclamp.js",
+  "keywords": [
+    "slim",
+    "clamp",
+    "javascript",
+    "front",
+    "text",
+    "truncation",
+    "ellipsis",
+    "ellipses"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

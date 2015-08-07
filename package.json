@@ -1,0 +1,32 @@
+{
+  "name": "slimclamp",
+  "version": "0.0.1",
+  "description": "A lightweight JavaScript text-clamping library",
+  "main": "slimclamp.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benelliott/SlimClamp.git"
+  },
+  "keywords": [
+    "slim",
+    "clamp",
+    "javascript",
+    "front",
+    "text",
+    "truncation",
+    "ellipsis",
+    "ellipses"
+  ],
+  "author": "benelliott <bengelliott@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/benelliott/SlimClamp/issues"
+  },
+  "homepage": "https://github.com/benelliott/SlimClamp#readme"
+}

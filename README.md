@@ -9,7 +9,7 @@ This library will improve on the original in the following ways:
 - Cleaner code structure
 - Fewer bugs
 - Complete function documentation
-- Bower support (coming soon)
+- Bower and NPM support
 
 However this comes at the cost of cutting away some features, such as the 'auto' and '__px' clamping settings. Neither of these were suitable for my use case and I am sceptical that the former does not work in the original library. I may include the latter at a later date. Thus it currently only supports usage in the following way:
 
@@ -21,5 +21,4 @@ Another difference is that this library will happily split a text string at any 
 Note that one limitation which exists on both versions of the library is that text will not be correctly truncated if the clamping is performed before the elements have been fully rendered, if viewing on a browser that lacks native support for text clamping.
 
 TODOs:
-- Add Bower support
 - Add '__px' config setting (maybe).
