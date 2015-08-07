@@ -1,6 +1,8 @@
 # SlimClamp
 A stripped-down JavaScript text clamper, inspired by the original [Clamp.js](https://github.com/josephschmitt/Clamp.js/).
 
+# Features
+
 In short, this library allows you to limit the number of lines of text that are visible in an HTML element, gracefully truncating the text with an ellipsis if necessary. It uses browser-native functionality to do this if available, but otherwise will fall back to an iterative approach. This approach uses a binary search method to converge on an admissible truncation.
 
 This library will improve on the original in the following ways:
@@ -20,5 +22,17 @@ Another difference is that this library will happily split a text string at any 
 
 Note that one limitation which exists on both versions of the library is that text will not be correctly truncated if the clamping is performed before the elements have been fully rendered, if viewing on a browser that lacks native support for text clamping.
 
-TODOs:
+# Installation
+
+SlimClamp is available through NPM or Bower. Install using
+```
+npm install slimclamp
+```
+or
+```
+bower install slimclamp
+```
+
+# TODOs
+
 - Add '__px' config setting (maybe).
