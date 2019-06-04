@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "homepage": "https://github.com/benelliott/SlimClamp",
   "authors": [
-    "benelliott <bengelliott@gmail.com>"
+    "benelliott <4996462+benelliott@users.noreply.github.com>"
   ],
   "description": "A lightweight JavaScript text-clamping library",
   "main": "slimclamp.js",
